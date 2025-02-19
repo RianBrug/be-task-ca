@@ -7,9 +7,11 @@ This project is a very naive implementation of a simple shop system. It mimics i
 Please answer the following questions:
 
 1. Why can we not easily split this project into two microservices?
+
 Likely tight coupling and direct dependencies between different modules (user and inventory). The services share the same database and have intertwined business logic.
 
 2. Why does this project not adhere to the clean architecture even though we have separate modules for api, repositories, usecases and the model?
+
 Having separate modules alone doesn't guarantee clean architecture. Here's some reasons:
 - Dependencies probably flow in wrong directions (outer layers directly depending on inner layers)
 - Business rules may be mixed with framework code
@@ -17,6 +19,7 @@ Having separate modules alone doesn't guarantee clean architecture. Here's some 
 - Domain entities contaminated with framework/database concerns
 
 3. What would be your plan to refactor the project to stick to the clean architecture?
+
 Key steps would be:
 - Define clear interfaces for repository and use case layers
 - Dependency inversion using Container pattern and FastAPI's dependency injection
@@ -24,6 +27,7 @@ Key steps would be:
 - Ensure dependencies point inward toward the domain core
 
 4. How can you make dependencies between modules more explicit?
+
 - Use dependency injection
 - Clear interfaces defined for repositories
 - Use type hints and proper import statements
