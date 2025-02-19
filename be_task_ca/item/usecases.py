@@ -1,41 +1,38 @@
-from typing import List
 from fastapi import HTTPException
-
-from .repository import find_item_by_name, get_all_items, save_item
-
+from ..core.interfaces import ItemRepository
 from .model import Item
-from .schema import AllItemsRepsonse, CreateItemRequest, CreateItemResponse
-from sqlalchemy.orm import Session
+from .schema import CreateItemRequest, CreateItemResponse, GetItemsResponse
 
 
-def create_item(item: CreateItemRequest, db: Session) -> CreateItemResponse:
-    search_result = find_item_by_name(item.name, db)
-    if search_result is not None:
-        raise HTTPException(
-            status_code=409, detail="An item with this name already exists"
+class ItemService:
+    def __init__(self, item_repository: ItemRepository):
+        self.item_repository = item_repository
+
+    def create_item(self, item: CreateItemRequest) -> CreateItemResponse:
+        search_result = self.item_repository.find_by_name(item.name)
+        if search_result is not None:
+            raise HTTPException(
+                status_code=409, detail="An item with this name already exists"
+            )
+
+        new_item = Item()  # type: ignore  # SQLAlchemy model initialization
+        new_item.name = item.name
+        new_item.description = item.description
+        new_item.price = item.price
+        new_item.quantity = item.quantity
+
+        saved_item = self.item_repository.save(new_item)
+        return self._model_to_schema(saved_item)
+
+    def get_all(self) -> GetItemsResponse:
+        item_list = self.item_repository.get_all()
+        return GetItemsResponse(items=list(map(self._model_to_schema, item_list)))
+
+    def _model_to_schema(self, item: Item) -> CreateItemResponse:
+        return CreateItemResponse(
+            id=item.id,
+            name=str(item.name),
+            description=str(item.description) if item.description else None,
+            price=float(item.price),  # type: ignore  # SQLAlchemy Mapped type conversion
+            quantity=int(item.quantity),  # type: ignore  # SQLAlchemy Mapped type conversion
         )
-
-    new_item = Item(
-        name=item.name,
-        description=item.description,
-        price=item.price,
-        quantity=item.quantity,
-    )
-
-    save_item(new_item, db)
-    return model_to_schema(new_item)
-
-
-def get_all(db: Session) -> List[CreateItemResponse]:
-    item_list = get_all_items(db)
-    return AllItemsRepsonse(items=list(map(model_to_schema, item_list)))
-
-
-def model_to_schema(item: Item) -> CreateItemResponse:
-    return CreateItemResponse(
-        id=item.id,
-        name=item.name,
-        description=item.description,
-        price=item.price,
-        quantity=item.quantity,
-    )

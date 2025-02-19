@@ -1,5 +1,6 @@
 import subprocess
 import uvicorn
+from be_task_ca.infrastructure.sql.schema import create_db_schema
 
 
 def start():
@@ -24,3 +25,7 @@ def create_dependency_graph():
 
 def check_types():
     subprocess.call(["mypy", "be_task_ca"])
+
+
+def schema():
+    create_db_schema()

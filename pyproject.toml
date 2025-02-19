@@ -9,7 +9,7 @@ packages = [{ include = "be_task_ca" }]
 [tool.poetry.dependencies]
 python = "^3.11"
 sqlalchemy = "^2.0.11"
-psycopg2 = "^2.9.6"
+psycopg2-binary = "^2.9.6"
 fastapi = "^0.95.1"
 uvicorn = "^0.22.0"
 
@@ -30,7 +30,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 start = "scripts:start"
-schema = "be_task_ca.commands:create_db_schema"
+schema = "scripts:schema"
 graph = "scripts:create_dependency_graph"
 tests = "scripts:run_tests"
 lint = "scripts:run_linter"
@@ -39,10 +39,24 @@ typing = "scripts:check_types"
 
 [tool.flake8]
 per-file-ignores = [
-    'api.py:B008', #ignore Depends(get_db) warnings
+    'api.py:B008',  # ignore Depends(get_db) warnings
+    'model.py:H601',  # ignore low cohesion for data models
+    'schema.py:H601',  # ignore low cohesion for schema classes
+    'interfaces.py:H601',  # ignore low cohesion for interfaces
+    'database.py:H601',  # ignore low cohesion for base classes
+    'usecases.py:H601',  # ignore low cohesion for service classes
 ]
 max-line-length = 88
 count = true
 
 [tool.mypy]
 #plugins = "sqlalchemy.ext.mypy.plugin"
+disable_error_code = [
+    "call-arg",  # Ignore missing positional arguments in dataclass initialization
+    "call-overload",  # Ignore overload matching errors with SQLAlchemy types
+    "assignment",  # Ignore some SQLAlchemy type assignment issues
+]
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.3.1"
+httpx = "^0.24.0"

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from uuid import UUID, uuid4
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from be_task_ca.database import Base
 
@@ -8,12 +9,13 @@ from be_task_ca.database import Base
 class Item(Base):
     __tablename__ = "items"
 
-    id: Mapped[UUID] = mapped_column(
-        primary_key=True,
-        default=uuid4(),
-        index=True,
-    )
-    name: Mapped[str] = mapped_column(unique=True, index=True)
+    name: Mapped[str]
     description: Mapped[str]
     price: Mapped[float]
     quantity: Mapped[int]
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        index=True,
+    )

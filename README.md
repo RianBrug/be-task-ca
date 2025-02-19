@@ -7,9 +7,27 @@ This project is a very naive implementation of a simple shop system. It mimics i
 Please answer the following questions:
 
 1. Why can we not easily split this project into two microservices?
-2. Why does this project not adhere to the clean architecture even though we have seperate modules for api, repositories, usecases and the model?
+Likely tight coupling and direct dependencies between different modules (user and inventory). The services share the same database and have intertwined business logic.
+
+2. Why does this project not adhere to the clean architecture even though we have separate modules for api, repositories, usecases and the model?
+Having separate modules alone doesn't guarantee clean architecture. Here's some reasons:
+- Dependencies probably flow in wrong directions (outer layers directly depending on inner layers)
+- Business rules may be mixed with framework code
+- Lack of proper interfaces/abstractions between layers
+- Domain entities contaminated with framework/database concerns
+
 3. What would be your plan to refactor the project to stick to the clean architecture?
+Key steps would be:
+- Define clear interfaces for repository and use case layers
+- Dependency inversion using Container pattern and FastAPI's dependency injection
+- DTOs implemented via Pydantic models for request/response handling
+- Ensure dependencies point inward toward the domain core
+
 4. How can you make dependencies between modules more explicit?
+- Use dependency injection
+- Clear interfaces defined for repositories
+- Use type hints and proper import statements
+- Document module boundaries and responsibilities
 
 *Please do not spend more than 2-3 hours on this task.*
 
@@ -27,11 +45,14 @@ Stretch goals:
 
 If you have not installed poetry you find instructions [here](https://python-poetry.org/).
 
+Also make sure you have graphviz installed, in MacOS you can install it using `brew install graphviz`.
+
 1. `docker-compose up` - runs a postgres instance for development
 2. `poetry install` - install all dependency for the project
 3. `poetry run schema` - creates the database schema in the postgres instance
 4. `poetry run start` - runs the development server at port 8000
 5. `/postman` - contains an postman environment and collections to test the project
+6. `docker-compose down -v` - stops the postgres instance and removes the volume
 
 ## Other commands
 

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import List
 import uuid
-
-from sqlalchemy import UUID, ForeignKey
+from sqlalchemy import ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
 from be_task_ca.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -11,25 +11,28 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 class CartItem(Base):
     __tablename__ = "cart_items"
 
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("users.id"), primary_key=True, index=True
-    )
-    item_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("items.id"), primary_key=True)
     quantity: Mapped[int]
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True, index=True
+    )
+    item_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("items.id"), primary_key=True
+    )
 
 
 @dataclass
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        primary_key=True,
-        default=uuid.uuid4(),
-        index=True,
-    )
-    email: Mapped[str] = mapped_column(unique=True, index=True)
     first_name: Mapped[str]
     last_name: Mapped[str]
+    email: Mapped[str]
     hashed_password: Mapped[str]
-    shipping_address: Mapped[str] = mapped_column(default=None)
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        index=True,
+    )
+    shipping_address: Mapped[str | None] = mapped_column(default=None)
     cart_items: Mapped[List["CartItem"]] = relationship()

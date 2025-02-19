@@ -14,5 +14,5 @@ class CreateItemResponse(CreateItemRequest):
     id: UUID
 
 
-class AllItemsRepsonse(BaseModel):
+class GetItemsResponse(BaseModel):
     items: List[CreateItemResponse]
